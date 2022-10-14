@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 		<!-- <title>My first three.js app</title> -->
 		<style>
 			body { margin: 0; }
@@ -15,7 +16,7 @@
 				z-index: -10;
 			}
 		</style>
-		<script src="https://cdn.tailwindcss.com"></script>
+		<link href="/dist/index.css" rel="stylesheet">
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	</head>
 	<body>
@@ -27,6 +28,7 @@
 			const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
 			const renderer = new THREE.WebGLRenderer();
+
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			document.body.appendChild( renderer.domElement );
 
@@ -58,7 +60,7 @@
 			<div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
 			<div class="fixed inset-0 z-10 overflow-y-auto">
 				<div id="modal-bg" class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-					<div class="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+					<div class="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6 w-full">
 						<div>
 							<div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full">
 								<!-- Heroicon name: outline/check -->
@@ -88,7 +90,7 @@
 			</div>
 		</div>
 		<script>
-			$('#modal').toggleClass('hidden')
+			// $('#modal').toggleClass('hidden')
 		</script>
 	</body>
 </html>
