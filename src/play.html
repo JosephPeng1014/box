@@ -1,0 +1,84 @@
+
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/dist/mindar-image-three.prod.js"></script>
+    <script type="module">
+
+      const defaultMarker = "https://cdn.jsdelivr.net/npm/mind-ar@1.1.5/examples/image-tracking/assets/card-example/card.mind"
+      const defaultImage = "https://region.mo/logo.png" 
+
+      // 從storage裡拿到各項參數
+      const getMarker = localStorage.getItem('marker');
+      const getResources = localStorage.getItem('resources');
+      let resources = []
+      if(getResources) {
+        resources = JSON.parse(getResources)
+      }
+
+      // 這邊只有用到一個media, 所以直接拿order: 0 
+      const resource = resources.find((doc)=> doc.type==='ar' && doc.order === 0)
+      const media = resource?.media
+
+      const THREE = window.MINDAR.IMAGE.THREE;
+
+      // 載入marker檔案
+      const mindarThree = new window.MINDAR.IMAGE.MindARThree({
+	      container: document.querySelector("#container"),
+	      imageTargetSrc: getMarker || defaultMarker
+      });
+
+      const {renderer, scene, camera} = mindarThree;
+      const anchor = mindarThree.addAnchor(0);
+      const geometry = new THREE.PlaneGeometry(1, 1);
+      // 載入圖片材質
+      const map = new THREE.TextureLoader().load( media?.src || defaultImage );
+      const material = new THREE.MeshStandardMaterial( { map: map} );
+      const plane = new THREE.Mesh( geometry, material );
+      anchor.group.add(plane);
+
+      const light = new THREE.AmbientLight( 0xffffff );
+      scene.add( light );
+
+      const start = async() => {
+        await mindarThree.start();
+        renderer.setAnimationLoop(() => {
+          renderer.render(scene, camera);
+        });
+      }
+      const startButton = document.querySelector("#startButton");
+      startButton.addEventListener("click", () => {
+	start();
+      });
+      stopButton.addEventListener("click", () => {
+	mindarThree.stop();
+	mindarThree.renderer.setAnimationLoop(null);
+      });
+    </script>
+    <style>
+      body {
+	margin: 0;
+      }
+      #container {
+	width: 100vw;
+	height: 100vh;
+	position: relative;
+	overflow: hidden;
+      }
+      #control {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 2;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="control">
+      <button id="startButton">Start</button>
+      <button id="stopButton">Stop</button>
+    </div>
+    <div id="container">
+    </div>
+  </body>
+</html>

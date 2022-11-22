@@ -1,51 +1,75 @@
 
-const test = async()=>{
+// 用來fetch project資料
+const main = async () => {
+  // 先清用local storage
+  localStorage.clear()
+
+  // 從url拿到token
   const params = new Proxy(new URLSearchParams(window.location.search), {
-    get: (searchParams, prop) => searchParams.get(prop),
-  });
-  const token = params.token;
+    get: (searchParams, prop) => searchParams.get(prop)
+  })
+  const token = params.token
 
-  if(token){
-    const url = `https://ca6d-2001-b011-7001-103d-a97f-3c92-36af-3f88.jp.ngrok.io/api/qrcode/get?token=${token}`
-    // const url = 'https://ca6d-2001-b011-7001-103d-a97f-3c92-36af-3f88.jp.ngrok.io/api/hello'
-    
-    const result = await fetch(url,{
+  if (token) {
+    // togather 平台的api位置
+    const url = `https://139a-111-249-79-212.jp.ngrok.io/api/qrcode/get?token=${token}`
+
+    await fetch(url, {
       mode: 'cors',
-      method: "POST",
+      method: 'POST',
       headers: {
-        'Access-Control-Allow-Origin':'*'
+        'Access-Control-Allow-Origin': '*'
       }
     })
-    .then(response => {
-      console.log(response)
-      return response.json()
-    })
-    .catch((error) => {
-      console.log('error',error)
-    })
+      .then(async response => {
+        const result = await response.json()
 
-    const project = result?.qrcode?.project
-    const logo =  result?.qrcode?.project?.logo
+        const qrcode = result?.qrcode
+        const project = qrcode?.project
+        const logo = result?.qrcode?.project?.logo
+        const resources = (project?.resources || []).filter(doc => doc.type === 'ar')
+        // const resource = resources[0] || {}
+        // const media = resource?.media
+        const compiledMarker = (project?.resources || []).find(doc => doc.type === 'marker')
 
-    $("#menu_image").attr("src", logo?.src);
+        // 把資料存到localstorage
 
-    $("#modal_logo").attr("src", logo?.src);
-    $("#title").text(project?.title)
-    $("#body").text(project?.body)
+        if (logo && logo.src) {
+          localStorage.setItem('logo', logo.src)
+        }
 
-    $("#menu_image").click(()=>{
-      $('#modal').toggleClass('hidden')
-    })
-    
-    $("#modal").click((event)=>{
-      if($(event.target).is("#modal-bg")){
-        $('#modal').toggleClass('hidden')
-      }
-    })
+        if (project) {
+          localStorage.setItem('title', project.title)
+          localStorage.setItem('body', project.body)
+        }
+
+        // if (media && media.src) {
+        //   localStorage.setItem('media', media?.src)
+        // }
+
+        if (resources) {
+          localStorage.setItem('resources', JSON.stringify(resources))
+        }
+
+        if (compiledMarker) {
+          const marker = compiledMarker.compiledMarker
+          localStorage.setItem('marker', marker.src)
+        }
+
+        return result
+      })
+      .then(() => {
+      // 都完成後跳轉到ar頁面
+        window.location.replace('/play.html')
+      })
+      .catch((error) => {
+        console.log('error', error)
+        window.location.replace('/play.html')
+      })
+  } else {
+    // 沒有token就直接跳轉，用預設的資料
+    window.location.replace('/play.html')
   }
-  
-  
-
 }
 
-test()
+main()
